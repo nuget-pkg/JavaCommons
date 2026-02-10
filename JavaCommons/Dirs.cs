@@ -55,7 +55,7 @@ namespace JavaCommons
 
         public static void PrepareForFile(string filePath)
         {
-            Prepare(Path.GetDirectoryName(filePath));
+            Prepare(Path.GetDirectoryName(filePath)!);
         }
     }
 }

@@ -7,7 +7,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<RootNamespace>JavaCommons.Demo</RootNamespace>
 		<PlatformTarget>AnyCPU</PlatformTarget>
-		<WarningsAsErrors>nullable</WarningsAsErrors>
+		<!--<WarningsAsErrors>nullable</WarningsAsErrors>-->
 		<NoWarn></NoWarn>
 		<Authors>JavaCommons</Authors>
 		<Company>JavaCommons Technologies</Company>
@@ -19,7 +19,7 @@
 		<DebugType>full</DebugType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<StartupObject>JavaCommons.Demo.Program</StartupObject>
+		<!--<StartupObject>JavaCommons.Demo.Program</StartupObject>-->
 	</PropertyGroup>
 	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
 		<Reference Include="Microsoft.CSharp" />

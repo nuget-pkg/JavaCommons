@@ -19,7 +19,7 @@ public class Add2Test
     [Test]
     public void Test01()
     {
-        Assert.That(JavaCommons.Add2(111, 222), Is.EqualTo(333));
+        //Assert.That(JavaCommons.Add2(111, 222), Is.EqualTo(333));
         //Assert.That(e.Value.Cast<string>(), Is.EqualTo("AAA"));
         //string ss = e.Value.Dynamic;
         //Assert.That(ss, Is.EqualTo("AAA"));

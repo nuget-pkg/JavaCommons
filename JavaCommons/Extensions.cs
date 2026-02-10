@@ -44,7 +44,7 @@ namespace JavaCommons
             using (TextWriter writer = new Utf8StringWriter())
             {
                 doc.Save(writer);
-                return writer.ToString();
+                return writer.ToString()!;
             }
         }
         internal class Utf8StringWriter : StringWriter

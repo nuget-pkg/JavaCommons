@@ -23,10 +23,10 @@ public class CSScripting
     {
         List<Assembly> defaultAssemblyList = new List<Assembly>()
         {
-            Assembly.GetAssembly(typeof(System.Dynamic.DynamicObject)), // System.Code
-            Assembly.GetAssembly(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo)), // Microsoft.CSharp
-            Assembly.GetAssembly(typeof(System.Dynamic.ExpandoObject)),
-            Assembly.GetAssembly(typeof(System.Data.DataTable)),
+            Assembly.GetAssembly(typeof(System.Dynamic.DynamicObject))!, // System.Code
+            Assembly.GetAssembly(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo))!, // Microsoft.CSharp
+            Assembly.GetAssembly(typeof(System.Dynamic.ExpandoObject))!,
+            Assembly.GetAssembly(typeof(System.Data.DataTable))!,
         };
         if (assemblyList != null)
             foreach (var x in assemblyList)

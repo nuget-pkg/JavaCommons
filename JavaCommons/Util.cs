@@ -10,10 +10,10 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using JavaCommons.Json;
-using JavaCommons.Json.Bson;
-using JavaCommons.Json.Linq;
-using Formatting = JavaCommons.Json.Formatting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
+using Newtonsoft.Json.Linq;
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace JavaCommons
 {
@@ -25,7 +25,7 @@ namespace JavaCommons
 
         public static string AssemblyName(Assembly assembly)
         {
-            return System.Reflection.AssemblyName.GetAssemblyName(assembly.Location).Name;
+            return System.Reflection.AssemblyName.GetAssemblyName(assembly.Location).Name!;
         }
 
         public static int FreeTcpPort()
@@ -42,7 +42,7 @@ namespace JavaCommons
         {
             if (x == null) return null;
             string fullName = Util.FullName(x);
-            if (fullName == "JavaCommons.Json.Linq.JValue")
+            if (fullName == "Newtonsoft.Json.Linq.JValue")
             {
                 return ((DateTime)x);
             }
@@ -122,7 +122,7 @@ namespace JavaCommons
         public static string FullName(dynamic x)
         {
             if (x == null) return "null";
-            string fullName = ((object)x).GetType().FullName;
+            string fullName = ((object)x).GetType().FullName!;
             return fullName;
         }
 
@@ -134,19 +134,10 @@ namespace JavaCommons
         public static dynamic? FromJson(string json)
         {
             if (String.IsNullOrEmpty(json)) return null;
-#if false
             return JsonConvert.DeserializeObject(json, new JsonSerializerSettings
             {
                 DateParseHandling = DateParseHandling.None
             });
-#else
-            var inputStream = new AntlrInputStream(json);
-            var lexer = new JSON5Lexer(inputStream);
-            var commonTokenStream = new CommonTokenStream(lexer);
-            var parser = new JSON5Parser(commonTokenStream);
-            var context = parser.json5();
-            return FromObject(JSON5ToObject(context));
-#endif
         }
 
         public static T? FromJson<T>(string json, T? fallback = default(T))
@@ -251,9 +242,9 @@ namespace JavaCommons
                 return s;
             }
 
-            if (FullName(x) == "JavaCommons.Json.Linq.JValue")
+            if (FullName(x) == "Newtonsoft.Json.Linq.JValue")
             {
-                var value = (JavaCommons.Json.Linq.JValue)x;
+                var value = (Newtonsoft.Json.Linq.JValue)x;
                 try
                 {
                     x = (DateTime)value;
@@ -323,13 +314,10 @@ namespace JavaCommons
             return text;
         }
 
-        public static string ResourceAsText(Assembly assembly, string name)
+        public static string? ResourceAsText(Assembly assembly, string name)
         {
-            Stream stream = assembly.GetManifestResourceStream($"{AssemblyName(assembly)}.{name}");
-            //if (stream == null) return "";
-            //var streamReader = new StreamReader(stream);
-            //var text = streamReader.ReadToEnd();
-            //return text;
+            Stream? stream = assembly.GetManifestResourceStream($"{AssemblyName(assembly)}.{name}");
+            if (stream == null) return null;
             return StreamAsText(stream);
         }
 
@@ -341,13 +329,10 @@ namespace JavaCommons
             return bytes;
         }
 
-        public static byte[] ResourceAsBytes(Assembly assembly, string name)
+        public static byte[]? ResourceAsBytes(Assembly assembly, string name)
         {
-            Stream stream = assembly.GetManifestResourceStream($"{AssemblyName(assembly)}.{name}");
-            //if (stream == null) return new byte[] { };
-            //byte[] bytes = new byte[(int)stream.Length];
-            //stream.Read(bytes, 0, (int)stream.Length);
-            //return bytes;
+            Stream? stream = assembly.GetManifestResourceStream($"{AssemblyName(assembly)}.{name}");
+            if (stream == null) return null;
             return StreamAsBytes(stream);
         }
 
@@ -359,26 +344,11 @@ namespace JavaCommons
 
         public static dynamic? ResourceAsJson(Assembly assembly, string name)
         {
-            string json = ResourceAsText(assembly, name);
+            string? json = ResourceAsText(assembly, name);
+            if (json == null) return null;
             return FromJson(json);
         }
 
-        /*
-        public static string HttpGetString(string url)
-        {
-            using (var client = new HttpClient())
-            {
-                string json;
-                var task1 = Task.Run(() => client.GetAsync(url));
-                task1.Wait();
-                var response = task1.Result;
-                var task2 = Task.Run(() => response.Content.ReadAsStringAsync());
-                task1.Wait();
-                json = task2.Result;
-                return json;
-            }
-        }
-        */
         public static string FirstPart(string s, params char[] separator)
         {
             string[] split = s.Split(separator);
@@ -415,7 +385,7 @@ namespace JavaCommons
                 return url;
             }
 
-            string result = response.RequestMessage.RequestUri.ToString();
+            string result = response.RequestMessage!.RequestUri!.ToString();
             response.Dispose();
             return result;
         }
@@ -426,7 +396,7 @@ namespace JavaCommons
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(s);
             return bytes;
         }
-    private static dynamic JSON5ToObject(ParserRuleContext x)
+    private static dynamic? JSON5ToObject(ParserRuleContext x)
     {
         //Log(FullName(x), "FullName(x)");
         string fullName = FullName(x);
@@ -443,7 +413,6 @@ namespace JavaCommons
                         return null;
                     }
                 }
-
                 return JSON5ToObject((ParserRuleContext)x.children[0]);
             }
             case "JavaCommons.Parser.Json5.JSON5Parser+ValueContext":
@@ -457,13 +426,13 @@ namespace JavaCommons
 #endif
                 if (x.children[0] is Antlr4.Runtime.Tree.TerminalNodeImpl)
                 {
-                    string t = JSON5Terminal(x.children[0]);
+                    string t = JSON5Terminal(x.children[0])!;
                     if (t.StartsWith("\""))
                     {
-                        return (string)JavaCommons.Json.JsonConvert.DeserializeObject(t, new JsonSerializerSettings
+                        return (string)Newtonsoft.Json.JsonConvert.DeserializeObject(t, new JsonSerializerSettings
                         {
                             DateParseHandling = DateParseHandling.None
-                        });
+                        })!;
                     }
 
                     switch (t)
@@ -476,7 +445,7 @@ namespace JavaCommons
                             return null;
                     }
 
-                    throw new Exception($"Unexpected JSON5Parser+ValueContext: {t}");
+                    //throw new Exception($"Unexpected JSON5Parser+ValueContext: {t}");
                     return t;
                 }
 
@@ -484,7 +453,7 @@ namespace JavaCommons
             }
             case "JavaCommons.Parser.Json5.JSON5Parser+ArrContext":
             {
-                var result = new JavaCommons.Json.Linq.JArray();
+                var result = new Newtonsoft.Json.Linq.JArray();
                 for (int i = 0; i < x.children.Count; i++)
                 {
                     //Print("  " + FullName(x.children[i]));
@@ -498,13 +467,13 @@ namespace JavaCommons
             }
             case "JavaCommons.Parser.Json5.JSON5Parser+ObjContext":
             {
-                var result = new JavaCommons.Json.Linq.JObject();
+                var result = new Newtonsoft.Json.Linq.JObject();
                 for (int i = 0; i < x.children.Count; i++)
                 {
                     //Print("  " + FullName(x.children[i]));
                     if (x.children[i] is JSON5Parser.PairContext pair)
                     {
-                        var pairObj = JSON5ToObject(pair);
+                        var pairObj = JSON5ToObject(pair)!;
                         result[(string)pairObj["key"]] = pairObj["value"];
                     }
                 }
@@ -513,7 +482,7 @@ namespace JavaCommons
             }
             case "JavaCommons.Parser.Json5.JSON5Parser+PairContext":
             {
-                var result = new JavaCommons.Json.Linq.JObject();
+                var result = new Newtonsoft.Json.Linq.JObject();
                 for (int i = 0; i < x.children.Count; i++)
                 {
                     //Print("  " + FullName(x.children[i]));
@@ -539,13 +508,13 @@ namespace JavaCommons
                     Print("    " + JSON5Terminal((x.children[i])), "BBB");
                 }
 #endif
-                string t = JSON5Terminal(x.children[0]);
+                string t = JSON5Terminal(x.children[0])!;
                 if (t.StartsWith("\""))
                 {
-                    return (string)JavaCommons.Json.JsonConvert.DeserializeObject(t, new JsonSerializerSettings
+                    return (string)Newtonsoft.Json.JsonConvert.DeserializeObject(t, new JsonSerializerSettings
                     {
                         DateParseHandling = DateParseHandling.None
-                    });
+                    })!;
                 }
 
                 return t;
@@ -559,7 +528,7 @@ namespace JavaCommons
                     Print("    " + JSON5Terminal((x.children[i])));
                 }
 #endif
-                return decimal.Parse(JSON5Terminal(x.children[0]), CultureInfo.InvariantCulture);
+                return decimal.Parse(JSON5Terminal(x.children[0])!, CultureInfo.InvariantCulture);
             }
             default:
                 throw new Exception($"Unexpected: {fullName}");
@@ -568,7 +537,7 @@ namespace JavaCommons
         return null;
     }
 
-    private static string JSON5Terminal(Antlr4.Runtime.Tree.IParseTree x)
+    private static string? JSON5Terminal(Antlr4.Runtime.Tree.IParseTree x)
     {
         if (x is Antlr4.Runtime.Tree.TerminalNodeImpl t)
         {
